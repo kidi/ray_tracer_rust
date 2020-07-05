@@ -1,8 +1,23 @@
 use cucumber::{cucumber, steps, before, after};
+#[path = "../src/ray.rs"] mod ray;
+use std::collections::HashMap;
 
 pub struct MyWorld {
     // You can use this struct for mutable context in scenarios.
-    foo: String
+    foo: String,
+    envArray: HashMap<String, ray::ArrayVect>
+}
+
+impl MyWorld {
+
+    fn addToEnv(&mut self, varName: String, varValue: ray::ArrayVect) {
+        self.envArray.insert(varName, varValue);
+    }
+
+    fn readFromEnv(&self, varName: String) -> std::option::Option<&ray::ArrayVect> {
+        self.envArray.get(&varName)
+    }
+
 }
 
 impl cucumber::World for MyWorld {}
@@ -10,13 +25,15 @@ impl std::default::Default for MyWorld {
     fn default() -> MyWorld {
         // This function is called every time a new scenario is started
         MyWorld { 
-            foo: "a default string".to_string()
+            foo: "a default string".to_string(),
+            envArray:  HashMap::new()
         }
     }
 }
 
 mod example_steps {
     use cucumber::steps;
+    use super::*;
     
     // Any type that implements cucumber::World + Default can be the world
     steps!(crate::MyWorld => {
@@ -58,6 +75,26 @@ mod example_steps {
             assert_eq!(expected_keys, vec!["a", "b"]);
             assert_eq!(expected_values, vec!["fizz", "buzz"]);
         };
+
+        given regex r"^(.+) <- array3 (\d+), (\d+), (\d+)" (String, i32, i32, i32) |world, variableName, variableXValue, variableYValue, variableZValue, step| {
+            let a = super::ray::ArrayVect::array3(variableXValue, variableYValue, variableZValue);
+            // Set up your context in given steps
+            world.addToEnv(variableName, a);
+        };
+
+        when regex r"^(.+) <- concat (.+),(.+)" (String, String, String) |world, variableName, operand1, operand2, step| {
+            let a = world.readFromEnv(operand1).unwrap();
+            let b = world.readFromEnv(operand2).unwrap();
+            let c = a.concatRef(b);
+            world.addToEnv(variableName, c);
+        };
+
+        then regex r"^(.+) = array6 (\d+), (\d+), (\d+), (\d+), (\d+), (\d+)" (String, i32, i32, i32, i32, i32, i32) |world, variableName, variableX1Value, variableY1Value, variableZ1Value, variableX2Value, variableY2Value, variableZ2Value, step| {
+            let a = super::ray::ArrayVect::array6(variableX1Value, variableY1Value, variableZ1Value, variableX2Value, variableY2Value, variableZ2Value);
+            let r = world.readFromEnv(variableName).unwrap();
+            assert_eq!(a.elts, r.elts);
+        };
+
     });
 }
 
