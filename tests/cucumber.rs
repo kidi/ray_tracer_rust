@@ -1,16 +1,16 @@
-use cucumber::{cucumber, steps, before, after};
-#[path = "../src/ray.rs"] mod ray;
+use cucumber::{after, before, cucumber, steps};
+#[path = "../src/ray.rs"]
+mod ray;
 use std::collections::HashMap;
 
 pub struct MyWorld {
     // You can use this struct for mutable context in scenarios.
     foo: String,
     envArray: HashMap<String, ray::ArrayVect>,
-    envTuple: HashMap<String, ray::Tuple>
+    envTuple: HashMap<String, ray::Tuple>,
 }
 
 impl MyWorld {
-
     fn addToEnv(&mut self, varName: String, varValue: ray::ArrayVect) {
         self.envArray.insert(varName, varValue);
     }
@@ -26,25 +26,24 @@ impl MyWorld {
     fn readFromEnvTuple(&self, varName: String) -> std::option::Option<&ray::Tuple> {
         self.envTuple.get(&varName)
     }
-
 }
 
 impl cucumber::World for MyWorld {}
 impl std::default::Default for MyWorld {
     fn default() -> MyWorld {
         // This function is called every time a new scenario is started
-        MyWorld { 
+        MyWorld {
             foo: "a default string".to_string(),
-            envArray:  HashMap::new(),
-            envTuple:  HashMap::new()
+            envArray: HashMap::new(),
+            envTuple: HashMap::new(),
         }
     }
 }
 
 mod example_steps {
-    use cucumber::steps;
     use super::*;
-    
+    use cucumber::steps;
+
     fn floatValueFrom(sign: String, value: i32, dec: i32) -> f32 {
         let valuePart = if sign.len() == 0 {
             value as f32
@@ -199,9 +198,7 @@ after!(an_after_fn => |scenario| {
 });
 
 // A setup function to be called before everything else
-fn setup() {
-    
-}
+fn setup() {}
 
 cucumber! {
     features: "./features", // Path to our feature files
@@ -212,8 +209,8 @@ cucumber! {
     setup: setup, // Optional; called once before everything
     before: &[
         a_before_fn // Optional; called before each scenario
-    ], 
+    ],
     after: &[
         an_after_fn // Optional; called after each scenario
-    ] 
+    ]
 }
