@@ -28,6 +28,7 @@ impl ArrayVect {
 }
 
 // A tuple struct
+#[derive(Debug, PartialEq, PartialOrd)]
 pub struct Tuple(pub f32, pub f32, pub f32, pub f32);
 
 impl Tuple {
@@ -54,6 +55,23 @@ impl Tuple {
     }
     pub fn vector3(x: f32, y: f32, z: f32) -> Tuple {
         Tuple(x, y, z, 0.0)
+    }
+    pub fn add(&self, other: &Tuple) -> Tuple {
+        let x = self.x() + other.x();
+        let y = self.y() + other.y();
+        let z = self.z() + other.z();
+        let w = self.w() + other.w();
+        Tuple(x, y, z, w)
+    }
+    pub fn sub(&self, other: &Tuple) -> Tuple {
+        let x = self.x() - other.x();
+        let y = self.y() - other.y();
+        let z = self.z() - other.z();
+        let w = self.w() - other.w();
+        Tuple(x, y, z, w)
+    }
+    pub fn neg(&self) -> Tuple {
+        Tuple(-self.x(), -self.y(), -self.z(), -self.w())
     }
 }
 

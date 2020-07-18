@@ -113,8 +113,8 @@ mod example_steps {
             assert_eq!(a.elts, r.elts);
         };
 
-        given regex r"^(.+) <- tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleValue, variableTupleDecValue, step| {
-            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), variableTupleValue  as f32 + variableTupleDecValue  as f32 / 100.0);
+        given regex r"^(.+) <- tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
             // Set up your context in given steps
             world.addToEnvTuple(variableName, a);
         };
@@ -169,19 +169,67 @@ mod example_steps {
             world.addToEnvTuple(variableName, a);
         };
 
-        then regex r"^(.+) = tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleValue, variableTupleDecValue, step| {
-            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), variableTupleValue  as f32 + variableTupleDecValue  as f32 / 100.0);
+        then regex r"^(.+) = tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
             let r = world.readFromEnvTuple(variableName).unwrap();
             assert_eq!(a.x(), r.x());
             assert_eq!(a.y(), r.y());
             assert_eq!(a.z(), r.z());
             assert_eq!(a.w(), r.w());
+            assert_eq!(a, *r);
         };
 
         given regex r"^(.+) <- vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
             let a = super::ray::Tuple::vector3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
             // Set up your context in given steps
             world.addToEnvTuple(variableName, a);
+        };
+
+        then regex r"^([^\+]+) \+ ([^\+]+) == tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableName2, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r2 = world.readFromEnvTuple(variableName2).unwrap();
+            let r = r1.add(r2);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
+        then regex r"^([^\-]+) \- ([^\-]+) == vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableName2, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::vector3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r2 = world.readFromEnvTuple(variableName2).unwrap();
+            let r = r1.sub(r2);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
+        then regex r"^([^\-]+) \- ([^\-]+) == point (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableName2, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::point3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r2 = world.readFromEnvTuple(variableName2).unwrap();
+            let r = r1.sub(r2);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
+        then regex r"^neg (.+) == tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.neg();
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
         };
 
     });
