@@ -83,9 +83,27 @@ impl Tuple {
     pub fn divide(&self, scalar:f32) -> Tuple {
         self.scale(1.0 / scalar)
     }
+    pub fn magnitude(&self) -> f32 {
+        fn square(x: f32) -> f32 {
+            x * x
+        }
+        let m = square(self.x()) + square(self.y()) + square(self.z()) + square(self.w());
+        m.sqrt()
+    }
+    pub fn normalize(&self) -> Tuple {
+        let m = self.magnitude();
+        if m == 0.0 {
+            Tuple(self.x(), self.y(), self.z(), self.w())
+        } else {
+            self.divide(m)
+        }
+    }
+    pub fn approximately(&self, other: Tuple) -> bool {
+        eqvFloat(self.x(), other.x()) && eqvFloat(self.y(), other.y()) && eqvFloat(self.z(), other.z()) && eqvFloat(self.w(), other.w())
+    }
 }
 
-fn eqvFloat(x: f32, y: f32) -> bool {
+pub fn eqvFloat(x: f32, y: f32) -> bool {
     let epsilon = 0.00001;
     (x - y).abs() < epsilon
 }

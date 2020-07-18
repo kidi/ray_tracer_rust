@@ -45,12 +45,7 @@ mod example_steps {
     use cucumber::steps;
 
     fn floatValueFrom(sign: String, value: i32, dec: i32) -> f32 {
-        let valuePart = if sign.len() == 0 {
-            value as f32
-        } else {
-            -1.0 * value as f32
-        };
-        valuePart + dec as f32 / 10.0
+        format!("{}{}.{}", sign, value, dec).parse().unwrap()
     }
 
     // Any type that implements cucumber::World + Default can be the world
@@ -254,6 +249,47 @@ mod example_steps {
             assert_eq!(a.z(), r.z());
             assert_eq!(a.w(), r.w());
             assert_eq!(a, r);
+        };
+
+        then regex r"^magnitude (.+) == (\d+).(\d+)" (String, i32, i32) |world, variableName, variableXValue, variableXDecValue, step| {
+            let a = floatValueFrom(String::from(""), variableXValue, variableXDecValue);
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.magnitude();
+            assert!(a == r || super::ray::eqvFloat(a, r));
+        };
+
+        then regex r"^magnitude (.+) == sqrt (\d+).(\d+)" (String, i32, i32) |world, variableName, variableXValue, variableXDecValue, step| {
+            let a = floatValueFrom(String::from(""), variableXValue, variableXDecValue);
+            let sqrt = a.sqrt();
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.magnitude();
+            assert_eq!(sqrt, r);
+        };
+
+        then regex r"^normalize (.+) == vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::vector3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.normalize();
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
+        then regex r"^normalize (.+) == approximately vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::vector3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.normalize();
+            let approx = r.approximately(a);
+            assert!(approx);
+        };
+
+        when regex r"^(.+) <- normalize (.+)" (String, String) | world, variableName, variableToNormalize, step | {
+            let r1 = world.readFromEnvTuple(variableToNormalize).unwrap();
+            let a = r1.normalize();
+            // Set up your context in given steps
+            world.addToEnvTuple(variableName, a);
         };
 
     });

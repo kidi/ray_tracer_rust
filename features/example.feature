@@ -80,3 +80,36 @@ Feature: Example feature
   Scenario: Dividing a tuple by a scalar
   Given a <- tuple 1.0, -2.0, 3.0, -4.0
   Then a / 2.0 == tuple 0.5, -1.0, 1.5, -2.0
+
+  Scenario: Computing the magnitude of vector(1,0,0)
+  Given v <- vector 1.0, 0.0, 0.0
+  Then magnitude v == 1.0
+
+  Scenario: Computing the magnitude of vector(0,1,0)
+  Given v <- vector 0.0, 1.0, 0.0
+  Then magnitude v == 1.0
+
+  Scenario: Computing the magnitude of vector(0,0,1)
+  Given v <- vector 0.0, 0.0, 1.0
+  Then magnitude v == 1.0
+
+  Scenario: Computing the magnitude of vector(1,2,3)
+  Given v <- vector 1.0, 2.0, 3.0
+  Then magnitude v == sqrt 14.0
+
+  Scenario: Computing the magnitude of vector(-1,-2,-3)
+  Given v <- vector 1.0, 2.0, 3.0
+  Then magnitude v == sqrt 14.0
+
+  Scenario: Normalizing vector(4,0,0) gives vector(1,0,0)
+  Given v <- vector 4.0, 0.0, 0.0
+  Then normalize v == vector 1.0, 0.0, 0.0
+
+  Scenario: Normalizing vector(1,2,3)
+  Given v <- vector 1.0, 2.0, 3.0
+  Then normalize v == approximately vector 0.26726, 0.53452, 0.80178
+
+  Scenario: Magnitude of normalize vector
+  Given v <- vector 1.0, 2.0, 3.0
+  When norm <- normalize v
+  Then magnitude norm == 1.0
