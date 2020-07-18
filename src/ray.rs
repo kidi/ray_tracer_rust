@@ -34,6 +34,29 @@ impl ArrayVect {
 
 }
 
+// A tuple struct
+pub struct Tuple(pub f32, pub f32, pub f32, pub f32);
+
+impl Tuple {
+    pub fn x(&self) -> f32 { self.0 }
+    pub fn y(&self) -> f32 { self.1 }
+    pub fn z(&self) -> f32 { self.2 }
+    pub fn w(&self) -> f32 { self.3 }
+    pub fn isPoint(&self) -> bool { self.w() == 1.0 }
+    pub fn isVector(&self) -> bool { self.w() == 0.0 }
+    pub fn point3(x:f32, y:f32, z:f32) -> Tuple {
+        Tuple(x, y, z, 1.0)
+    }
+    pub fn vector3(x:f32, y:f32, z:f32) -> Tuple {
+        Tuple(x, y, z, 0.0)
+    }
+}
+
+fn eqvFloat(x:f32, y:f32) -> bool {
+    let epsilon = 0.00001;
+    (x-y).abs() < epsilon
+}
+
 #[cfg(test)]
 mod ray_tests {
     use super::*;

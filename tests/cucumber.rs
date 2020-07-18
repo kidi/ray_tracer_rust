@@ -5,7 +5,8 @@ use std::collections::HashMap;
 pub struct MyWorld {
     // You can use this struct for mutable context in scenarios.
     foo: String,
-    envArray: HashMap<String, ray::ArrayVect>
+    envArray: HashMap<String, ray::ArrayVect>,
+    envTuple: HashMap<String, ray::Tuple>
 }
 
 impl MyWorld {
@@ -18,6 +19,14 @@ impl MyWorld {
         self.envArray.get(&varName)
     }
 
+    fn addToEnvTuple(&mut self, varName: String, varValue: ray::Tuple) {
+        self.envTuple.insert(varName, varValue);
+    }
+
+    fn readFromEnvTuple(&self, varName: String) -> std::option::Option<&ray::Tuple> {
+        self.envTuple.get(&varName)
+    }
+
 }
 
 impl cucumber::World for MyWorld {}
@@ -26,7 +35,8 @@ impl std::default::Default for MyWorld {
         // This function is called every time a new scenario is started
         MyWorld { 
             foo: "a default string".to_string(),
-            envArray:  HashMap::new()
+            envArray:  HashMap::new(),
+            envTuple:  HashMap::new()
         }
     }
 }
@@ -35,6 +45,15 @@ mod example_steps {
     use cucumber::steps;
     use super::*;
     
+    fn floatValueFrom(sign: String, value: i32, dec: i32) -> f32 {
+        let valuePart = if sign.len() == 0 {
+            value as f32
+        } else {
+            -1.0 * value as f32
+        };
+        valuePart + dec as f32 / 10.0
+    }
+
     // Any type that implements cucumber::World + Default can be the world
     steps!(crate::MyWorld => {
         given "I am trying out Cucumber" |world, step| {
@@ -93,6 +112,77 @@ mod example_steps {
             let a = super::ray::ArrayVect::array6(variableX1Value, variableY1Value, variableZ1Value, variableX2Value, variableY2Value, variableZ2Value);
             let r = world.readFromEnv(variableName).unwrap();
             assert_eq!(a.elts, r.elts);
+        };
+
+        given regex r"^(.+) <- tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), variableTupleValue  as f32 + variableTupleDecValue  as f32 / 100.0);
+            // Set up your context in given steps
+            world.addToEnvTuple(variableName, a);
+        };
+
+        then regex r"^(a).x = (-?)(\d+).(\d+)" (String, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, step| {
+            let a = floatValueFrom(variableXSign, variableXValue, variableXDecValue);
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert_eq!(a, r.x());
+        };
+
+        then regex r"^(a).y = (-?)(\d+).(\d+)" (String, String, i32, i32) |world, variableName, variableYSign, variableYValue, variableYDecValue, step| {
+            let a = floatValueFrom(variableYSign, variableYValue, variableYDecValue);
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert_eq!(a, r.y());
+        };
+
+        then regex r"^(a).z = (-?)(\d+).(\d+)" (String, String, i32, i32) |world, variableName, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = floatValueFrom(variableZSign, variableZValue, variableZDecValue);
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert_eq!(a, r.z());
+        };
+
+        then regex r"^(a).w = (-?)(\d+).(\d+)" (String, String, i32, i32) |world, variableName, variableWSign, variableWValue, variableWDecValue, step| {
+            let a = floatValueFrom(variableWSign, variableWValue, variableWDecValue);
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert_eq!(a, r.w());
+        };
+
+        then regex r"(.+) is a point" (String) |world, variableName, step| {
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert!(r.isPoint());
+        };
+
+        then regex r"(.+) is not a point" (String) |world, variableName, step| {
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert!(!r.isPoint());
+        };
+
+        then regex r"(.+) is a vector" (String) |world, variableName, step| {
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert!(r.isVector());
+        };
+
+        then regex r"(.+) is not a vector" (String) |world, variableName, step| {
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert!(!r.isVector());
+        };
+
+        given regex r"^(.+) <- point (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::point3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            // Set up your context in given steps
+            world.addToEnvTuple(variableName, a);
+        };
+
+        then regex r"^(.+) = tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), variableTupleValue  as f32 + variableTupleDecValue  as f32 / 100.0);
+            let r = world.readFromEnvTuple(variableName).unwrap();
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+        };
+
+        given regex r"^(.+) <- vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, step| {
+            let a = super::ray::Tuple::vector3(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue));
+            // Set up your context in given steps
+            world.addToEnvTuple(variableName, a);
         };
 
     });
