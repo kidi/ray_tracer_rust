@@ -232,6 +232,30 @@ mod example_steps {
             assert_eq!(a, r);
         };
 
+        then regex r"^([^\*]+) \* (-?)(\d+).(\d+) == tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, scalarSign, scalarValue, scalarDec, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
+            let scale = floatValueFrom(scalarSign, scalarValue, scalarDec);
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.scale(scale);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
+        then regex r"^(.+) / (-?)(\d+).(\d+) == tuple (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32, String, i32, i32) |world, variableName, scalarSign, scalarValue, scalarDec, variableXSign, variableXValue, variableXDecValue, variableYSign, variableYValue, variableYDecValue, variableZSign, variableZValue, variableZDecValue, variableTupleSign, variableTupleValue, variableTupleDecValue, step| {
+            let a = super::ray::Tuple(floatValueFrom(variableXSign, variableXValue, variableXDecValue), floatValueFrom(variableYSign, variableYValue, variableYDecValue), floatValueFrom(variableZSign, variableZValue, variableZDecValue), floatValueFrom(variableTupleSign, variableTupleValue, variableTupleDecValue));
+            let scale = floatValueFrom(scalarSign, scalarValue, scalarDec);
+            let r1 = world.readFromEnvTuple(variableName).unwrap();
+            let r = r1.divide(scale);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
     });
 }
 

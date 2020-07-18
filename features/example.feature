@@ -68,3 +68,15 @@ Feature: Example feature
   Scenario: Negating a tuple
   Given a <- tuple 1.0, -2.0, 3.0, -4.0
   Then neg a == tuple -1.0, 2.0, -3.0, 4.0
+
+  Scenario: Multiplying a tuple by a scalar
+  Given a <- tuple 1.0, -2.0, 3.0, -4.0
+  Then a * 3.5 == tuple 3.5, -7.0, 10.5, -14.0
+
+  Scenario: Multiplying a tuple by a fraction
+  Given a <- tuple 1.0, -2.0, 3.0, -4.0
+  Then a * 0.5 == tuple 0.5, -1.0, 1.5, -2.0
+
+  Scenario: Dividing a tuple by a scalar
+  Given a <- tuple 1.0, -2.0, 3.0, -4.0
+  Then a / 2.0 == tuple 0.5, -1.0, 1.5, -2.0

@@ -73,6 +73,16 @@ impl Tuple {
     pub fn neg(&self) -> Tuple {
         Tuple(-self.x(), -self.y(), -self.z(), -self.w())
     }
+    pub fn scale(&self, scalar:f32) -> Tuple {
+        let x = self.x() * scalar;
+        let y = self.y() * scalar;
+        let z = self.z() * scalar;
+        let w = self.w() * scalar;
+        Tuple(x, y, z, w)
+    }
+    pub fn divide(&self, scalar:f32) -> Tuple {
+        self.scale(1.0 / scalar)
+    }
 }
 
 fn eqvFloat(x: f32, y: f32) -> bool {
