@@ -28,7 +28,7 @@ impl ArrayVect {
 }
 
 // A tuple struct
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct Tuple(pub f32, pub f32, pub f32, pub f32);
 
 impl Tuple {
