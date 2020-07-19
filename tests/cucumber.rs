@@ -292,6 +292,26 @@ mod example_steps {
             world.add_to_env_tuple(variable_name, a);
         };
 
+        then regex r"^dot (.+), (.+) == (-?)(\d+).(\d+)" (String, String, String, i32, i32) |world, variable_name, variable_name2, variable_x_sign, variable_x_value, variable_x_dec_value, _step| {
+            let a = float_value_from(variable_x_sign, variable_x_value, variable_x_dec_value);
+            let r1 = world.read_from_env_tuple(variable_name).unwrap();
+            let r2 = world.read_from_env_tuple(variable_name2).unwrap();
+            let r = r1.dot(r2);
+            assert!(a == r || super::ray::eqv_float(a, r));
+        };
+
+        then regex r"^cross (.+), (.+) == vector (-?)(\d+).(\d+), (-?)(\d+).(\d+), (-?)(\d+).(\d+)" (String, String, String, i32, i32, String, i32, i32, String, i32, i32) |world, variable_name, variable_name2, variable_x_sign, variable_x_value, variable_x_dec_value, variable_y_sign, variable_y_value, variable_y_dec_value, variable_z_sign, variable_z_value, variable_z_dec_value, _step| {
+            let a = super::ray::Tuple::vector3(float_value_from(variable_x_sign, variable_x_value, variable_x_dec_value), float_value_from(variable_y_sign, variable_y_value, variable_y_dec_value), float_value_from(variable_z_sign, variable_z_value, variable_z_dec_value));
+            let r1 = world.read_from_env_tuple(variable_name).unwrap();
+            let r2 = world.read_from_env_tuple(variable_name2).unwrap();
+            let r = r1.cross(r2);
+            assert_eq!(a.x(), r.x());
+            assert_eq!(a.y(), r.y());
+            assert_eq!(a.z(), r.z());
+            assert_eq!(a.w(), r.w());
+            assert_eq!(a, r);
+        };
+
     });
 }
 

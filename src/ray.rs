@@ -101,6 +101,15 @@ impl Tuple {
     pub fn approximately(&self, other: Tuple) -> bool {
         eqv_float(self.x(), other.x()) && eqv_float(self.y(), other.y()) && eqv_float(self.z(), other.z()) && eqv_float(self.w(), other.w())
     }
+    pub fn dot(&self, other: &Tuple) -> f32 {
+        self.x() * other.x() + self.y() * other.y() + self.z() * other.z() + self.w() * other.w()
+    }
+    pub fn cross(&self, other: &Tuple) -> Tuple {
+        let x = self.y() * other.z() - self.z() * other.y();
+        let y = self.z() * other.x() - self.x() * other.z();
+        let z = self.x() * other.y() - self.y() * other.x();
+        Tuple::vector3(x, y, z)
+    }
 }
 
 pub fn eqv_float(x: f32, y: f32) -> bool {
