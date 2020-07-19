@@ -19,7 +19,7 @@ impl ArrayVect {
         vec.append(vec2);
         ArrayVect { elts: vec }
     }
-    pub fn concatRef(&self, other: &ArrayVect) -> ArrayVect {
+    pub fn concat_ref(&self, other: &ArrayVect) -> ArrayVect {
         let mut vec = self.elts.clone();
         let vec2 = &mut other.elts.clone();
         vec.append(vec2);
@@ -44,10 +44,10 @@ impl Tuple {
     pub fn w(&self) -> f32 {
         self.3
     }
-    pub fn isPoint(&self) -> bool {
+    pub fn is_point(&self) -> bool {
         self.w() == 1.0
     }
-    pub fn isVector(&self) -> bool {
+    pub fn is_vector(&self) -> bool {
         self.w() == 0.0
     }
     pub fn point3(x: f32, y: f32, z: f32) -> Tuple {
@@ -99,11 +99,11 @@ impl Tuple {
         }
     }
     pub fn approximately(&self, other: Tuple) -> bool {
-        eqvFloat(self.x(), other.x()) && eqvFloat(self.y(), other.y()) && eqvFloat(self.z(), other.z()) && eqvFloat(self.w(), other.w())
+        eqv_float(self.x(), other.x()) && eqv_float(self.y(), other.y()) && eqv_float(self.z(), other.z()) && eqv_float(self.w(), other.w())
     }
 }
 
-pub fn eqvFloat(x: f32, y: f32) -> bool {
+pub fn eqv_float(x: f32, y: f32) -> bool {
     let epsilon = 0.00001;
     (x - y).abs() < epsilon
 }
